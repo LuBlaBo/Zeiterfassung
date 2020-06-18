@@ -2,6 +2,7 @@
 <html>
 <head>
 <title>Zeiterfassung - Gehen</title><link rel="apple-touch-icon" sizes="57x57" href="src/favicon/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="57x57" href="src/favicon/apple-icon-57x57.png">
 <link rel="apple-touch-icon" sizes="60x60" href="src/favicon/apple-icon-60x60.png">
 <link rel="apple-touch-icon" sizes="72x72" href="src/favicon/apple-icon-72x72.png">
 <link rel="apple-touch-icon" sizes="76x76" href="src/favicon/apple-icon-76x76.png">
@@ -18,7 +19,7 @@
 <meta name="msapplication-TileColor" content="#ffffff">
 <meta name="msapplication-TileImage" content="src/favicon/ms-icon-144x144.png">
 <meta name="theme-color" content="#ffffff">
-<link rel="stylesheet" type="text/css" href="src/style.css">
+<link rel="stylesheet" type="text/css" href="/app/src/style.css">
 </head>
 <body>
 
@@ -27,6 +28,19 @@
 <p>
     Austragen
 </p>
+
+<div style="text-align: center;">
+    <form>
+        <select name="out_id" id="cars">
+            <option value="">Auswahl treffen</option>
+            <option value="3MPW3I9088">Lukas</option>
+            <option value="OmXhzhqejo">Max</option>
+        </select>
+        <input type="submit" value="Austragen">
+    </form>
+    {{msg}}
+</div>
+
 
 
 
