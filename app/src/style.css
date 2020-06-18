@@ -1,0 +1,43 @@
+body {
+  font-family: verdana;
+  background-color: #e6e4e4;
+  color: #003560;
+}
+
+h1 {
+  color: white;
+  text-align: center;
+  font-family: century gothic;
+  color: #003560;
+}
+
+p {
+  font-family: verdana;
+  text-align: center;
+  font-size: 20px;
+  color: #003560;
+}
+
+
+table {
+
+  border: 1px solid black;
+  border-collapse: separate;
+    width: 100%;
+}
+
+th {
+  text-align: center;
+}
+
+td {
+  text-align: center;
+  white-space: pre;
+}
+
+
+footer {
+  background-color: #F1F1F1;
+  text-align: center;
+  padding: 5px;
+}
