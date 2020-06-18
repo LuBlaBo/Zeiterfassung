@@ -6,19 +6,17 @@ version = "0.0.1"
 uhrzeit = time.strftime("%H:%M:%S")
 
 
-
+# Main Webseite
 @route(['/', 'GET'])
-@view('')
 def index():
-
-    #Array neu erzeugen (leer)
+    # Array neu erzeugen (leer)
     id_anwesenheit = []
     id_mitarbeiter = []
     time_kommen = []
     time_gehen = []
 
-    #Datenbank verbinden
-    conn = sqlite3.connect('Timedb.db')
+    # Datenbank verbinden
+    conn = sqlite3.connect('Timedb.sqlite')
     c = conn.cursor()
     sql = "SELECT * FROM Anwesenheit ORDER BY id_anwesenheit ASC"
     c.execute(sql)
@@ -30,22 +28,29 @@ def index():
         time_kommen.append(row[2])
         time_gehen.append(row[3])
     c.close()
-    print("\n")
-    print("----------")
-
     dis_id_anwesenheit = ("\n".join(id_anwesenheit))
     dis_id_mitarbeiter = ("\n".join(id_mitarbeiter))
     dis_time_kommen = ("\n".join(time_kommen))
-    dis_time_gehen =  ("\n".join(time_gehen))
+    dis_time_gehen = ("\n".join(time_gehen))
 
-    return template("index", uhrzeit=uhrzeit, version=version, dis_id_anwesenheit=dis_id_anwesenheit,
+    return template("index.html", uhrzeit=uhrzeit, version=version, dis_id_anwesenheit=dis_id_anwesenheit,
                     dis_id_mitarbeiter=dis_id_mitarbeiter, dis_time_kommen=dis_time_kommen,
                     dis_time_gehen=dis_time_gehen)
 
 
-@route('/src/:filename#.*#')
+@route(['/app/checkin.html'])
+def checkin():
+    return template("./app/checkin.html", uhrzeit=uhrzeit, version=version)
+
+
+@route(['/app/checkout.html'])
+def checkout():
+    return template("./app/checkout.html", uhrzeit=uhrzeit, version=version)
+
+
+@route('/app/src/:filename#.*#')
 def static(filename):
     return static_file(filename, root='./app/src')
 
 
-run(host="0.0.0.0", port=8080, reloader=True)
+run(host="0.0.0.0", port=8080, reloader=True, debug=True)
