@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="Timedb" uuid="b1bea0d8-0cd7-432a-b65c-c9591c3892ef">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:C:\Users\LuBla\PycharmProjects\Zeiterfassung\Timedb.db</jdbc-url>
+    </data-source>
+  </component>
+</project>
