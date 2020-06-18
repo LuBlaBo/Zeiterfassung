@@ -6,7 +6,7 @@ import sqlite3
 from time import strftime
 from typing import List
 
-verbindung = sqlite3.connect("./Timedb.db")
+verbindung = sqlite3.connect("./Timedb.sqlite")
 cursor = verbindung.cursor()
 
 ############ SQL-Section ############
