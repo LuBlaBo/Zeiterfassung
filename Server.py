@@ -22,6 +22,7 @@ host = configparser.get('ServerSettings', 'host')
 port = configparser.get('ServerSettings', 'port')
 autoreload = configparser.get('ServerSettings', 'autoreload')
 debug = configparser.get('ServerSettings', 'debug')
+db = configparser.get('ServerSettings', 'db')
 
 
 #################
@@ -43,7 +44,7 @@ def index():
     time_gehen = []
 
     # Datenbank verbinden
-    conn = sqlite3.connect('Timedb.sqlite')
+    conn = sqlite3.connect(db)
     c = conn.cursor()
     sql = "SELECT * FROM Anwesenheit ORDER BY id_anwesenheit ASC"
     c.execute(sql)
@@ -64,7 +65,7 @@ def index():
     ids_mitarbeiter = []
     ids_status = []
 
-    conn = sqlite3.connect('Timedb.sqlite')
+    conn = sqlite3.connect(db)
     c = conn.cursor()
     sql = "SELECT * FROM Status"
     c.execute(sql)
@@ -94,7 +95,7 @@ def checkin():
     elif checkin_id == "":
         pass
     else:
-        conn = sqlite3.connect('Timedb.sqlite')
+        conn = sqlite3.connect(db)
         c = conn.cursor()
         sql = ("UPDATE Status SET ""status""=1 WHERE id_mitarbeiter=" + "'" + checkin_id + "'")
         print(sql)
@@ -114,7 +115,7 @@ def checkout():
     elif checkout_id == "":
         pass
     else:
-        conn = sqlite3.connect('Timedb.sqlite')
+        conn = sqlite3.connect(db)
         c = conn.cursor()
         sql = ("UPDATE Status SET ""status""=0 WHERE id_mitarbeiter=" + "'" + checkout_id + "'")
         print(sql)
