@@ -38,40 +38,47 @@ datum = time.strftime(" " + "%d.%m.%Y")
 @route('/', method=['GET'])
 def index():
     ids = []
-    ids_mitarbeiter = []
+    ids_name = []
+    ids_nachname = []
     ids_status = []
 
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    sql = "SELECT * FROM Status"
+    sql = "SELECT id_mitarbeiter, name, nachname, status FROM mitarbeiter"
     c.execute(sql)
     dbout = (c.fetchall())
     for row in dbout:
-        convrow1 = str(row[0])
-        ids.append(convrow1)
-        ids_mitarbeiter.append(row[1])
-        convrow2 = str(row[2])
-        ids_status.append(convrow2)
+        ids.append(row[0])
+        ids_name.append(row[1])
+        ids_nachname.append(row[2])
+        conv3 = str(row[3])
+        ids_status.append(conv3)
+
     c.close()
-    dis_ids_mitarbeiter = ("\n".join(ids_mitarbeiter))
+    dis_ids = ("\n".join(ids))
+    dis_ids_name = ("\n".join(ids_name))
+    dis_ids_nachname = ("\n".join(ids_nachname))
     dis_ids_status = ("\n".join(ids_status))
 
-    return template("index.html", uhrzeit=uhrzeit, version=version, dis_ids_mitarbeiter=dis_ids_mitarbeiter,
-                    dis_ids_status=dis_ids_status)
+    return template("index.html", uhrzeit=uhrzeit, version=version, dis_ids=dis_ids, dis_ids_name=dis_ids_name,
+                    dis_ids_nachname=dis_ids_nachname, dis_ids_status=dis_ids_status)
 
 
 @route('/app/checkin.html', method=['GET', 'POST'])
 def checkin():
     checkin_id = bottle.request.params.get("in_id", default="NULL")
+    print(checkin_id)
     msg = ""
     if checkin_id == "NULL":
         pass
     elif checkin_id == "":
         pass
+    elif len(checkin_id) < 5:
+        msg = "ID zu kurz!"
     else:
         conn = sqlite3.connect(db)
         c = conn.cursor()
-        sql = ("UPDATE Status SET ""status""=1 WHERE id_mitarbeiter=" + "'" + checkin_id + "'")
+        sql = ("UPDATE mitarbeiter SET ""status""=1 WHERE id_mitarbeiter=" + "'" + checkin_id + "'")
         print(sql)
         c.execute(sql)
         conn.commit()
@@ -91,7 +98,7 @@ def checkout():
     else:
         conn = sqlite3.connect(db)
         c = conn.cursor()
-        sql = ("UPDATE Status SET ""status""=0 WHERE id_mitarbeiter=" + "'" + checkout_id + "'")
+        sql = ("UPDATE mitarbeiter SET ""status""=0 WHERE id_mitarbeiter=" + "'" + checkout_id + "'")
         print(sql)
         c.execute(sql)
         conn.commit()
