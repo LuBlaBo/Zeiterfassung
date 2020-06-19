@@ -7,5 +7,11 @@
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:C:\Users\LuBla\PycharmProjects\Zeiterfassung\Timedb.db</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="Timedb [2]" uuid="e0d9c80f-42dc-42ad-8d26-ffcca5ebe932">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:C:\Users\LuBla\PycharmProjects\Zeiterfassung\conf\Timedb.sqlite</jdbc-url>
+    </data-source>
   </component>
 </project>
