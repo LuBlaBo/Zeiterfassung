@@ -1,9 +1,34 @@
+version = "0.0.1"
+
+
 import time
 import bottle
 from bottle import route, static_file, template, run, view, request
 import sqlite3
+import configparser
 
-version = "0.0.1"
+
+#################
+#               #
+#    CONFIG     #
+#               #
+#################
+configparser = configparser.RawConfigParser()
+configFilePath = r'conf/app.conf'
+configparser.read(configFilePath)
+
+
+host = configparser.get('ServerSettings', 'host')
+port = configparser.get('ServerSettings', 'port')
+autoreload = configparser.get('ServerSettings', 'autoreload')
+debug = configparser.get('ServerSettings', 'debug')
+
+
+#################
+#               #
+#   Variables   #
+#               #
+#################
 uhrzeit = time.strftime(" " + "%H:%M:%S")
 datum = time.strftime(" " + "%d.%m.%Y")
 
@@ -35,12 +60,9 @@ def index():
     dis_time_kommen = ("\n".join(time_kommen))
     dis_time_gehen = ("\n".join(time_gehen))
 
-
-
     ids = []
     ids_mitarbeiter = []
     ids_status = []
-
 
     conn = sqlite3.connect('Timedb.sqlite')
     c = conn.cursor()
@@ -59,15 +81,14 @@ def index():
 
     return template("index.html", uhrzeit=uhrzeit, version=version, dis_id_anwesenheit=dis_id_anwesenheit,
                     dis_id_mitarbeiter=dis_id_mitarbeiter, dis_time_kommen=dis_time_kommen,
-                    dis_time_gehen=dis_time_gehen, dis_ids_mitarbeiter=dis_ids_mitarbeiter, dis_ids_status=dis_ids_status)
+                    dis_time_gehen=dis_time_gehen, dis_ids_mitarbeiter=dis_ids_mitarbeiter,
+                    dis_ids_status=dis_ids_status)
 
 
 @route('/app/checkin.html', method=['GET', 'POST'])
 def checkin():
     checkin_id = bottle.request.params.get("in_id", default="NULL")
-    print(checkin_id)
     msg = ""
-    msg = "Erfolgreich eingetragen! Zeitstempel -->" + datum + uhrzeit
     if checkin_id == "NULL":
         pass
     elif checkin_id == "":
@@ -75,20 +96,19 @@ def checkin():
     else:
         conn = sqlite3.connect('Timedb.sqlite')
         c = conn.cursor()
-        sql = ("UPDATE Status SET ""status""=1 WHERE id_mitarbeiter=" +"'" + checkin_id +"'")
+        sql = ("UPDATE Status SET ""status""=1 WHERE id_mitarbeiter=" + "'" + checkin_id + "'")
         print(sql)
         c.execute(sql)
         conn.commit()
         c.close()
+        msg = "Erfolgreich eingetragen! Zeitstempel -->" + datum + uhrzeit
     return template("./app/checkin.html", uhrzeit=uhrzeit, version=version, msg=msg)
 
 
 @route('/app/checkout.html', method=['GET', 'POST'])
 def checkout():
     checkout_id = bottle.request.params.get("out_id", default="NULL")
-    print(checkout_id)
     msg = ""
-    msg = "Erfolgreich ausgetragen! Zeitstempel -->" + datum + uhrzeit
     if checkout_id == "NULL":
         pass
     elif checkout_id == "":
@@ -96,12 +116,18 @@ def checkout():
     else:
         conn = sqlite3.connect('Timedb.sqlite')
         c = conn.cursor()
-        sql = ("UPDATE Status SET ""status""=0 WHERE id_mitarbeiter=" +"'" + checkout_id +"'")
+        sql = ("UPDATE Status SET ""status""=0 WHERE id_mitarbeiter=" + "'" + checkout_id + "'")
         print(sql)
         c.execute(sql)
         conn.commit()
         c.close()
+        msg = "Erfolgreich ausgetragen! Zeitstempel -->" + datum + uhrzeit
     return template("./app/checkout.html", uhrzeit=uhrzeit, version=version, msg=msg)
+
+
+@route('/app/export.html', method=['GET', 'POST'])
+def export():
+    pass
 
 
 @route('/app/src/:filename#.*#')
@@ -109,4 +135,4 @@ def static(filename):
     return static_file(filename, root='./app/src')
 
 
-run(host="0.0.0.0", port=8080, reloader=True, debug=True)
+run(host=host, port=port, reloader=autoreload, debug=debug)
