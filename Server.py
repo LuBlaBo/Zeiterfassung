@@ -37,30 +37,6 @@ datum = time.strftime(" " + "%d.%m.%Y")
 # Main Webseite
 @route('/', method=['GET'])
 def index():
-    # Array neu erzeugen (leer)
-    id_anwesenheit = []
-    id_mitarbeiter = []
-    time_kommen = []
-    time_gehen = []
-
-    # Datenbank verbinden
-    conn = sqlite3.connect(db)
-    c = conn.cursor()
-    sql = "SELECT * FROM Anwesenheit ORDER BY id_anwesenheit ASC"
-    c.execute(sql)
-    dbout = (c.fetchall())
-    for row in dbout:
-        convrow0 = str(row[0])
-        id_anwesenheit.append(convrow0)
-        id_mitarbeiter.append(row[1])
-        time_kommen.append(row[2])
-        time_gehen.append(row[3])
-    c.close()
-    dis_id_anwesenheit = ("\n".join(id_anwesenheit))
-    dis_id_mitarbeiter = ("\n".join(id_mitarbeiter))
-    dis_time_kommen = ("\n".join(time_kommen))
-    dis_time_gehen = ("\n".join(time_gehen))
-
     ids = []
     ids_mitarbeiter = []
     ids_status = []
@@ -80,9 +56,7 @@ def index():
     dis_ids_mitarbeiter = ("\n".join(ids_mitarbeiter))
     dis_ids_status = ("\n".join(ids_status))
 
-    return template("index.html", uhrzeit=uhrzeit, version=version, dis_id_anwesenheit=dis_id_anwesenheit,
-                    dis_id_mitarbeiter=dis_id_mitarbeiter, dis_time_kommen=dis_time_kommen,
-                    dis_time_gehen=dis_time_gehen, dis_ids_mitarbeiter=dis_ids_mitarbeiter,
+    return template("index.html", uhrzeit=uhrzeit, version=version, dis_ids_mitarbeiter=dis_ids_mitarbeiter,
                     dis_ids_status=dis_ids_status)
 
 
@@ -128,7 +102,33 @@ def checkout():
 
 @route('/app/export.html', method=['GET', 'POST'])
 def export():
-    pass
+    # Array neu erzeugen (leer)
+    id_anwesenheit = []
+    id_mitarbeiter = []
+    time_kommen = []
+    time_gehen = []
+
+    # Datenbank verbinden
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    sql = "SELECT * FROM Anwesenheit ORDER BY id_anwesenheit ASC"
+    c.execute(sql)
+    dbout = (c.fetchall())
+    for row in dbout:
+        convrow0 = str(row[0])
+        id_anwesenheit.append(convrow0)
+        id_mitarbeiter.append(row[1])
+        time_kommen.append(row[2])
+        time_gehen.append(row[3])
+    c.close()
+    dis_id_anwesenheit = ("\n".join(id_anwesenheit))
+    dis_id_mitarbeiter = ("\n".join(id_mitarbeiter))
+    dis_time_kommen = ("\n".join(time_kommen))
+    dis_time_gehen = ("\n".join(time_gehen))
+
+    return template("./app/export.html", uhrzeit=uhrzeit, version=version, dis_id_anwesenheit=dis_id_anwesenheit,
+                    dis_id_mitarbeiter=dis_id_mitarbeiter, dis_time_kommen=dis_time_kommen,
+                    dis_time_gehen=dis_time_gehen)
 
 
 @route('/app/src/:filename#.*#')

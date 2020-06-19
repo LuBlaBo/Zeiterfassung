@@ -20,6 +20,7 @@
   <meta name="msapplication-TileImage" content="app/src/favicon/ms-icon-144x144.png">
   <meta name="theme-color" content="#ffffff">
   <meta http-equiv="refresh" content="5">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" type="text/css" href="app/src/style.css">
 </head>
 <body>
@@ -32,23 +33,6 @@
   My first paragraph.
 
 </p>
-
-  <table>
-    <tr>
-      <th>ID</th>
-      <th>ID Mitarbeiter (md5 Hash)</th>
-      <th>Angekommen</th>
-      <th>Gegangen</th>
-    </tr>
-    <tr>
-      <td>{{dis_id_anwesenheit}}</td>
-      <td>{{dis_id_mitarbeiter}}</td>
-      <td>{{dis_time_kommen}}</td>
-      <td>{{dis_time_gehen}}</td>
-    </tr>
-  </table>
-<br>
-</table>
 
 <br>
 
@@ -67,6 +51,12 @@
 
 
 <footer>
+
+  <a href="/app/checkin.html">Eintragen</a>
+  <a href="/app/checkout.html">Austragen</a>
+  <a href="/app/export.html">Export</a>
+
+  <br>
 
   Zeiterfassung | Version {{version}} | Aktuelle Zeit {{uhrzeit}}
 

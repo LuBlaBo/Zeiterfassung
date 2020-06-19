@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Zeiterfassung - Kommen</title>
+<title>Zeiterfassung - Export</title>
 <link rel="apple-touch-icon" sizes="57x57" href="src/favicon/apple-icon-57x57.png">
 <link rel="apple-touch-icon" sizes="60x60" href="src/favicon/apple-icon-60x60.png">
 <link rel="apple-touch-icon" sizes="72x72" href="src/favicon/apple-icon-72x72.png">
@@ -19,6 +19,7 @@
 <meta name="msapplication-TileColor" content="#ffffff">
 <meta name="msapplication-TileImage" content="src/favicon/ms-icon-144x144.png">
 <meta name="theme-color" content="#ffffff">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="/app/src/style.css">
 </head>
 <body>
@@ -26,23 +27,26 @@
 <h1>Zeiterfassung</h1>
 
 <p>
-    Eintragen
+    Export
 </p>
 
-<div style="text-align: center;">
-    <form>
-        <select name="in_id" id="cars">
-            <option value="">Auswahl treffen</option>
-            <option value="3MPW3I9088">Lukas</option>
-            <option value="OmXhzhqejo">Max</option>
-        </select>
-        <input type="submit" value="Eintragen">
-    </form>
-    {{msg}}
-</div>
-
-
-
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>ID Mitarbeiter (md5 Hash)</th>
+      <th>Angekommen</th>
+      <th>Gegangen</th>
+    </tr>
+    <tr>
+      <td>{{dis_id_anwesenheit}}</td>
+      <td>{{dis_id_mitarbeiter}}</td>
+      <td>{{dis_time_kommen}}</td>
+      <td>{{dis_time_gehen}}</td>
+    </tr>
+  </table>
+<br>
+</table>
+<br>
 <footer>
 
   Zeiterfassung | Version {{version}} | Aktuelle Zeit {{uhrzeit}}
