@@ -22,7 +22,7 @@ def randomword(length):
 
 db = configparser.get('ServerSettings', 'db')
 
-verbindung = sqlite3.connect("./testdb.sqlite")
+verbindung = sqlite3.connect("./conf/testdb.sqlite")
 cursor = verbindung.cursor()
 befehle: List[str] = []
 
@@ -62,10 +62,11 @@ while True:
         #Tabelle Anwesenheit erstellen (Array id:0)
         befehle.append('''CREATE TABLE IF NOT EXISTS anwesenheit (
         	id_anwesenheit INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-        	id_mitarbeiter CHAR NOT NULL,
-        	datum CHAR NOT NULL,
+        	id_mitarbeiter TEXT NOT NULL,
+        	datum TEXT NOT NULL,
         	time_in TEXT NOT NULL,
-        	time_out TEXT)
+        	time_out TEXT,
+        	raum TEXT)
         	''')
 
         #Tabelle Status erstellen (Array id:1)
@@ -81,6 +82,7 @@ while True:
         cursor.execute(befehle[0])
         cursor.execute(befehle[1])
         verbindung.commit()
+        cursor.close()
     elif (eingabe == "q"):
         cursor.close()
         break
