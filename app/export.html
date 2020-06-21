@@ -34,12 +34,14 @@
     <tr>
       <th>ID</th>
       <th>ID Mitarbeiter</th>
-      <th>Angekommen</th>
-      <th>Gegangen</th>
+      <th>Datum</th>
+      <th>Uhrzeit Checkin</th>
+      <th>Uhrzeit Checkout</th>
     </tr>
     <tr>
       <td>{{dis_id_anwesenheit}}</td>
       <td>{{dis_id_mitarbeiter}}</td>
+      <td>{{dis_time_datum}}</td>
       <td>{{dis_time_kommen}}</td>
       <td>{{dis_time_gehen}}</td>
     </tr>
@@ -47,6 +49,14 @@
 <br>
 </table>
 <br>
+
+<div style="text-align: center;">
+  <form>
+    <input type="checkbox" id="export" name="export" value="true">
+    <label for="export">Daten exportieren?</label>
+    <input type="submit" value="Exportieren...">
+  </form>
+</div>
 <footer>
 
   Zeiterfassung | Version {{version}} | Aktuelle Zeit {{uhrzeit}}

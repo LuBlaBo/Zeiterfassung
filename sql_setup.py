@@ -15,6 +15,7 @@ configparser = configparser.RawConfigParser()
 configFilePath = r'conf/app.conf'
 configparser.read(configFilePath)
 
+
 def randomword(length):
    letters = string.ascii_lowercase
    return ''.join(random.choice(letters) for i in range(length))
