@@ -115,6 +115,7 @@ def checkout():
 @route('/app/export.html', method=['GET', 'POST'])
 def export():
     uhrzeit = time.strftime(" " + "%H:%M:%S")
+    datum = time.strftime(" " + "%d.%m.%Y")
     export = bottle.request.params.get("export", default="false")
 
 
@@ -127,7 +128,6 @@ def export():
 
     random_id = randomword(5)
     # Datenbank verbinden
-    csvWriter = csv.writer(open("app/src/export/" + random_id + "_" + "output.csv", "w"))
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute("SELECT * FROM anwesenheit")
@@ -144,18 +144,19 @@ def export():
     dis_time_datum = ("\n".join(time_datum))
     dis_time_kommen = ("\n".join(time_kommen))
     dis_time_gehen = ("\n".join(time_gehen))
-    c.close()
+
 
     if export == "true":
+        csvWriter = csv.writer(open("app/src/export/" + random_id + "_" + datum + "_" + "export.csv", "w"))
         conn = sqlite3.connect(db)
         c = conn.cursor()
         c.execute("SELECT * FROM anwesenheit")
         rows = c.fetchall()
         for row in rows:
             csvWriter.writerows([row])
-        c.close()
     else:
         pass
+    c.close()
 
 
     return template("./app/export.html", uhrzeit=uhrzeit, version=version, dis_id_anwesenheit=dis_id_anwesenheit,
