@@ -14,14 +14,13 @@ import random, string
 configparser = configparser.RawConfigParser()
 configFilePath = r'conf/app.conf'
 configparser.read(configFilePath)
+db = configparser.get('ServerSettings', 'db')
 
 
 def randomword(length):
    letters = string.ascii_lowercase
    return ''.join(random.choice(letters) for i in range(length))
 
-
-db = configparser.get('ServerSettings', 'db')
 
 verbindung = sqlite3.connect("./conf/testdb.sqlite")
 cursor = verbindung.cursor()

@@ -126,6 +126,7 @@ def export():
     time_kommen = []
     time_gehen = []
 
+
     random_id = randomword(5)
     # Datenbank verbinden
     conn = sqlite3.connect(db)
@@ -147,7 +148,7 @@ def export():
 
 
     if export == "true":
-        csvWriter = csv.writer(open("app/src/export/" + random_id + "_" + datum + "_" + "export.csv", "w"))
+        csvWriter = csv.writer(open("app/src/export/" + datum + "_" + "export.csv", "w"))
         conn = sqlite3.connect(db)
         c = conn.cursor()
         c.execute("SELECT * FROM anwesenheit")
@@ -159,7 +160,7 @@ def export():
     c.close()
 
 
-    return template("./app/export.html", uhrzeit=uhrzeit, version=version, dis_id_anwesenheit=dis_id_anwesenheit,
+    return template("./app/export.html", uhrzeit=uhrzeit, datum=datum, version=version, dis_id_anwesenheit=dis_id_anwesenheit,
                     dis_id_mitarbeiter=dis_id_mitarbeiter, dis_time_datum=dis_time_datum,
                     dis_time_kommen=dis_time_kommen,
                     dis_time_gehen=dis_time_gehen)
