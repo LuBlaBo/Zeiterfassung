@@ -114,8 +114,8 @@ def checkout():
 
 @route('/app/export.html', method=['GET', 'POST'])
 def export():
-    uhrzeit = time.strftime(" " + "%H:%M:%S")
-    datum = time.strftime(" " + "%d.%m.%Y")
+    uhrzeit = time.strftime("%H:%M:%S")
+    datum = time.strftime("%d.%m.%Y")
     export = bottle.request.params.get("export", default="false")
 
 

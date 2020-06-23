@@ -22,9 +22,9 @@ def randomword(length):
    return ''.join(random.choice(letters) for i in range(length))
 
 
-verbindung = sqlite3.connect("./conf/testdb.sqlite")
+verbindung = sqlite3.connect(db)
 cursor = verbindung.cursor()
-befehle: List[str] = []
+befehle = []
 
 ############ SQL-Section ############
 
@@ -82,7 +82,6 @@ while True:
         cursor.execute(befehle[0])
         cursor.execute(befehle[1])
         verbindung.commit()
-        cursor.close()
     elif (eingabe == "q"):
         cursor.close()
         break
