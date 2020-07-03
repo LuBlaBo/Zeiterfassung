@@ -36,12 +36,11 @@
       <th>Nachname</th>
       <th>Status</th>
     </tr>
+    % for id, name, nachname, status in dis_rows:
     <tr>
-      <td>{{dis_ids}}</td>
-      <td>{{dis_ids_name}}</td>
-      <td>{{dis_ids_nachname}}</td>
-      <td>{{dis_ids_status}}</td>
+    <td>{{id}}</td> <td>{{name}}</td> <td>{{nachname}}</td> <td>{{status}}</td>
     </tr>
+    % end
   </table>
 <br>
 </table>

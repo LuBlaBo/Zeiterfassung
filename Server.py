@@ -40,31 +40,16 @@ conn.commit()
 @route('/', method=['GET'])
 def index():
     uhrzeit = time.strftime(" " + "%H:%M:%S")
-    ids = []
-    ids_name = []
-    ids_nachname = []
-    ids_status = []
 
     conn = sqlite3.connect(db)
     c = conn.cursor()
     sql = "SELECT id_mitarbeiter, name, nachname, status FROM mitarbeiter"
     c.execute(sql)
-    dbout = (c.fetchall())
-    for row in dbout:
-        ids.append(row[0])
-        ids_name.append(row[1])
-        ids_nachname.append(row[2])
-        conv3 = str(row[3])
-        ids_status.append(conv3)
-
+    dbout = c.fetchall()
     c.close()
-    dis_ids = ("\n".join(ids))
-    dis_ids_name = ("\n".join(ids_name))
-    dis_ids_nachname = ("\n".join(ids_nachname))
-    dis_ids_status = ("\n".join(ids_status))
 
-    return template("index.html", uhrzeit=uhrzeit, version=version, dis_ids=dis_ids, dis_ids_name=dis_ids_name,
-                    dis_ids_nachname=dis_ids_nachname, dis_ids_status=dis_ids_status)
+    return template("index.html", uhrzeit=uhrzeit, version=version,
+                    dis_rows=dbout)
 
 
 @route('/app/checkin.html', method=['GET', 'POST'])
