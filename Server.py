@@ -78,6 +78,8 @@ def checkin():
         pass
     elif checkin_id == "":
         pass
+    elif "'" in checkin_id:
+        msg = "Zeichen nicht zulässig!"
     elif len(checkin_id) < 5:
         msg = "ID zu kurz!"
     else:
@@ -101,6 +103,8 @@ def checkout():
         pass
     elif checkout_id == "":
         pass
+    elif "'" in checkout_id:
+        msg = "Zeichen nicht zulässig!"
     else:
         conn = sqlite3.connect(db)
         c = conn.cursor()
