@@ -40,7 +40,6 @@ conn.commit()
 @route('/', method=['GET'])
 def index():
     uhrzeit = time.strftime(" " + "%H:%M:%S")
-
     conn = sqlite3.connect(db)
     c = conn.cursor()
     sql = "SELECT id_mitarbeiter, name, nachname, status FROM mitarbeiter"
@@ -57,7 +56,6 @@ def checkin():
     uhrzeit = time.strftime(" " + "%H:%M:%S")
     datum = time.strftime(" " + "%d.%m.%Y")
     checkin_id = bottle.request.params.get("in_id", default="NULL")
-    print(checkin_id)
     msg = ""
     if checkin_id == "NULL":
         pass
@@ -70,8 +68,9 @@ def checkin():
     else:
         conn = sqlite3.connect(db)
         c = conn.cursor()
-        c.execute("UPDATE mitarbeiter SET ""status""=1 WHERE id_mitarbeiter=" + "'" + checkin_id + "'")
-        c.execute('INSERT INTO anwesenheit VALUES (NULL, '"?"', '"?"', '"?"', "Noch anwesend...", 0)', (checkin_id, datum, uhrzeit,))
+        c.execute("UPDATE mitarbeiter SET status=1 WHERE id_mitarbeiter=?", (checkin_id,))
+        c.execute("INSERT INTO anwesenheit VALUES (NULL, ?, ?, ?, 'Noch anwesend...', 0)",
+                  (checkin_id, datum, uhrzeit,))
         conn.commit()
         c.close()
         msg = "Erfolgreich eingetragen! Zeitstempel -->" + datum + uhrzeit
@@ -93,8 +92,8 @@ def checkout():
     else:
         conn = sqlite3.connect(db)
         c = conn.cursor()
-        c.execute("UPDATE mitarbeiter SET ""status""=0 WHERE id_mitarbeiter=" + "'" + checkout_id + "'")
-        c.execute("UPDATE anwesenheit SET ""time_out""=" + "'" + uhrzeit + "' WHERE id_mitarbeiter=" + "'" + checkout_id + "'"" AND datum=" + "'" + datum + "'")
+        c.execute("UPDATE mitarbeiter SET status=0 WHERE id_mitarbeiter=?", (checkout_id,))
+        c.execute("UPDATE anwesenheit SET time_out=? WHERE id_mitarbeiter=? AND datum=?", (uhrzeit, checkout_id, datum,))
         conn.commit()
         c.close()
         msg = "Erfolgreich ausgetragen! Zeitstempel -->" + datum + uhrzeit
