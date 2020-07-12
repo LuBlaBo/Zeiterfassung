@@ -130,6 +130,7 @@ def export():
     c = conn.cursor()
     c.execute("SELECT * FROM anwesenheit")
     dbout = (c.fetchall())
+    print(dbout)
     for row in dbout:
         convrow0 = str(row[0])
         id_anwesenheit.append(convrow0)
@@ -172,31 +173,17 @@ def static(filename):
 @bottle.get('/api')
 def api():
     mitarbeiter_id = request.query.id
-
-    if mitarbeiter_id == "NULL":
-        pass
-    elif mitarbeiter_id == "":
-        pass
-    elif "'" in mitarbeiter_id:
-        return "Zeichen nicht zulässig"
-    elif len(mitarbeiter_id) < 5:
-        return  "ID zu kurz!"
+    if len(mitarbeiter_id) < 5 or len(mitarbeiter_id) > 5:
+        return  "Check ID length"
     else:
         conn = sqlite3.connect(db)
         c = conn.cursor()
         c.execute("SELECT status from mitarbeiter WHERE id_mitarbeiter=?", (mitarbeiter_id,))
         status = c.fetchone()
         status = status[0]
-        if status == "0":
-            print("Status 0")
-        elif status == "1":
-            print("Status 1")
-        else:
-            print(status)
+        abfrage = [mitarbeiter_id, status]
         c.close()
-
-    return ""
-    #return "ID: {0}".format(mitarbeiter_id)
+    return "ID: {0} Status: {1}".format(abfrage[0], abfrage[1])
 
 
 run(host=host, port=port, reloader=autoreload, debug=debug)
