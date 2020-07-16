@@ -11,11 +11,11 @@ banner = ("""
 
 import time
 import bottle
-from bottle import route, static_file, template, run, view, request
+from bottle import route, static_file, template, run, request, HTTPResponse
 import sqlite3
 import configparser
-import csv
-import random, string
+import random, string, csv
+import time
 
 def randomword(length):
    letters = string.ascii_lowercase
@@ -130,7 +130,6 @@ def export():
     c = conn.cursor()
     c.execute("SELECT * FROM anwesenheit")
     dbout = (c.fetchall())
-    print(dbout)
     for row in dbout:
         convrow0 = str(row[0])
         id_anwesenheit.append(convrow0)
@@ -169,10 +168,12 @@ def export():
 def static(filename):
     return static_file(filename, root='./app/src')
 
-
 @bottle.get('/api')
 def api():
     mitarbeiter_id = request.query.id
+    uhrzeit = time.strftime("%H:%M:%S")
+    datum = time.strftime("%d.%m.%Y")
+
     if len(mitarbeiter_id) < 5 or len(mitarbeiter_id) > 5:
         return  "Check ID length"
     else:
@@ -181,8 +182,24 @@ def api():
         c.execute("SELECT status from mitarbeiter WHERE id_mitarbeiter=?", (mitarbeiter_id,))
         status = c.fetchone()
         status = status[0]
-        abfrage = [mitarbeiter_id, status]
+
+        if str(status) == "1": #Wenn da, dann austragen
+            c.execute("UPDATE mitarbeiter SET status=0 WHERE id_mitarbeiter=?", (mitarbeiter_id,))
+            c.execute("UPDATE anwesenheit SET time_out=? WHERE id_mitarbeiter=? AND datum=?",
+                      (uhrzeit, mitarbeiter_id, datum,))
+            conn.commit()
+            return "Erfolgreich ausgetragen! Zeitstempel -->{0} {1}".format(datum, uhrzeit)
+        elif str(status) == "0": #Wenn nicht da, eintragen
+            c.execute("UPDATE mitarbeiter SET status=1 WHERE id_mitarbeiter=?", (mitarbeiter_id,))
+            c.execute("INSERT INTO anwesenheit VALUES (NULL, ?, ?, ?, 'Noch anwesend...', 0)",
+                      (mitarbeiter_id, datum, uhrzeit,))
+            conn.commit()
+            return "Erfolgreich eingetragen! Zeitstempel -->{0} {1}".format(datum, uhrzeit)
+        else:
+            return "Got incorrect values"
         c.close()
+
+
     return "ID: {0} Status: {1}".format(abfrage[0], abfrage[1])
 
 
