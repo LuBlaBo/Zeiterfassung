@@ -1,5 +1,5 @@
 body {
-  font-family: verdana;
+  font-family: 'Ubuntu';font-size: 22px;
   background-color: #e6e4e4;
   color: #003560;
 }
@@ -7,12 +7,10 @@ body {
 h1 {
   color: white;
   text-align: center;
-  font-family: century gothic;
   color: #003560;
 }
 
 p {
-  font-family: verdana;
   text-align: center;
   font-size: 20px;
   color: #003560;
@@ -27,6 +25,7 @@ table {
 
 th {
   text-align: center;
+  color: black;
 }
 
 td {
