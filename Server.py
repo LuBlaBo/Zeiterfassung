@@ -1,3 +1,12 @@
+import bottle
+from bottle import route, static_file, template, run, request
+import sqlite3
+import configparser
+import csv
+import time
+import smtplib
+from email.mime.text import MIMEText
+
 version = "0.0.2"
 banner = ("""
 
@@ -8,18 +17,7 @@ banner = ("""
 
       """)
 
-
-import time
-import bottle
-from bottle import route, static_file, template, run, request, HTTPResponse
-import sqlite3
-import configparser
-import random, string, csv
-import time
-
-def randomword(length):
-   letters = string.ascii_lowercase
-   return ''.join(random.choice(letters) for i in range(length))
+print(banner + "\n" + "Version: " + version)
 
 
 #################
@@ -31,38 +29,110 @@ configparser = configparser.RawConfigParser()
 configFilePath = r'conf/app.conf'
 configparser.read(configFilePath)
 
-
 host = configparser.get('ServerSettings', 'host')
 port = configparser.get('ServerSettings', 'port')
 autoreload = configparser.get('ServerSettings', 'autoreload')
 debug = configparser.get('ServerSettings', 'debug')
 db = configparser.get('ServerSettings', 'db')
 
+mailer_enabled = configparser.get('MailSettings', 'enabled')
+server = configparser.get('MailSettings', 'server')
+mport = configparser.get('MailSettings', 'mport')
+user = configparser.get('MailSettings', 'user')
+password = configparser.get('MailSettings', 'password')
+sender = configparser.get('MailSettings', 'sender')
+receiver = configparser.get('MailSettings', 'receiver')
 
-conn = sqlite3.connect(db)
-c = conn.cursor()
 
-print(banner + "\n" + "Version: " + version)
+def mail(subject, message):
+    """
+    Mail module for sending mails via STARTTLS. Adopts "subject" and "message" to send mails in html form.
+    :param subject:
+    :param message:
+    :return:
+    """
+    if mailer_enabled == "true":
+        html = open("conf/mail.html", "r")
+        html = html.read()
+        html = html.format(message)
+
+        msg = MIMEText(html, 'html')
+        msg['Subject'] = subject
+        msg['From'] = sender
+        msg['To'] = receiver
+
+        with smtplib.SMTP(server, mport) as mserver:
+            mserver.starttls()  # Secure the connection
+            mserver.login(user, password)
+            mserver.sendmail(sender, receiver, msg.as_string())
+            print("Mail successfully sent")
+    else:
+        print("Mailer disabled")
+
+
+def sql_get_user(mitarbeiter_id):
+    """
+    SQL module for compiling user information. Name, Surname [and Mail Address]
+    :param mitarbeiter_id:
+    :return:
+    """
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT name, nachname FROM mitarbeiter WHERE id_mitarbeiter=?", (mitarbeiter_id,))
+    mailuser = c.fetchall()
+    c.close()
+    for row in mailuser:
+        dictmailuser = [row[0], row[1]]
+        namenachname = (dictmailuser[0] + " " + dictmailuser[1])
+
+        return namenachname
+
+
+def export_csv():
+    """
+    Function to generate CSV-File with Checkin / Checkout values
+    :return:
+    """
+    csvwriter = csv.writer(open("app/src/export/" + datum() + "_" + "export.csv", "w"))
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT * FROM anwesenheit")
+    rows = c.fetchall()
+    for row in rows:
+        csvwriter.writerows([row])
+
+
+def uhrzeit():
+    uhrzeit = time.strftime("%H:%M:%S")
+
+    return uhrzeit
+
+
+def datum():
+    datum = time.strftime("%d.%m.%Y")
+
+    return datum
 
 
 # Main Webseite
 @route('/', method=['GET'])
 def index():
-    uhrzeit = time.strftime(" " + "%H:%M:%S")
+    """
+    Main website
+    :return:
+    """
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute("SELECT id_mitarbeiter, name, nachname, status FROM mitarbeiter")
     dbout = c.fetchall()
     c.close()
 
-    return template("index.html", uhrzeit=uhrzeit, version=version,
+    return template("index.html", uhrzeit=uhrzeit(), version=version,
                     dis_rows=dbout)
 
 
 @route('/app/checkin.html', method=['GET', 'POST'])
 def checkin():
-    uhrzeit = time.strftime(" " + "%H:%M:%S")
-    datum = time.strftime(" " + "%d.%m.%Y")
     checkin_id = bottle.request.params.get("in_id", default="NULL")
     msg = ""
     if checkin_id == "NULL":
@@ -78,17 +148,18 @@ def checkin():
         c = conn.cursor()
         c.execute("UPDATE mitarbeiter SET status=1 WHERE id_mitarbeiter=?", (checkin_id,))
         c.execute("INSERT INTO anwesenheit VALUES (NULL, ?, ?, ?, 'Noch anwesend...', 0)",
-                  (checkin_id, datum, uhrzeit,))
+                  (checkin_id, datum(), uhrzeit(),))
         conn.commit()
         c.close()
-        msg = "Erfolgreich eingetragen! Zeitstempel -->" + datum + uhrzeit
-    return template("./app/checkin.html", uhrzeit=uhrzeit, version=version, msg=msg)
+        msg = "Hallo {0}! Erfolgreich eingetragen... Zeitstempel --> {1} {2}".format(sql_get_user(checkin_id), datum(),
+                                                                                     uhrzeit())
+        mail("Zeiterfassung - Checkin", msg)
+
+    return template("./app/checkin.html", uhrzeit=uhrzeit(), version=version, msg=msg)
 
 
 @route('/app/checkout.html', method=['GET', 'POST'])
 def checkout():
-    uhrzeit = time.strftime(" " + "%H:%M:%S")
-    datum = time.strftime(" " + "%d.%m.%Y")
     checkout_id = bottle.request.params.get("out_id", default="NULL")
     msg = ""
     if checkout_id == "NULL":
@@ -102,19 +173,19 @@ def checkout():
         c = conn.cursor()
         c.execute("UPDATE mitarbeiter SET status=0 WHERE id_mitarbeiter=?", (checkout_id,))
         c.execute("UPDATE anwesenheit SET time_out=? WHERE id_mitarbeiter=? AND datum=?",
-                  (uhrzeit, checkout_id, datum,))
+                  (uhrzeit(), checkout_id, datum(),))
         conn.commit()
         c.close()
-        msg = "Erfolgreich ausgetragen! Zeitstempel -->" + datum + uhrzeit
-    return template("./app/checkout.html", uhrzeit=uhrzeit, version=version, msg=msg)
+        msg = "Hallo {0}! Erfolgreich ausgetragen... Zeitstempel --> {1} {2}".format(sql_get_user(checkout_id), datum(),
+                                                                                     uhrzeit())
+        print(msg)
+        mail("Zeiterfassung - Checkout", msg)
+    return template("./app/checkout.html", uhrzeit=uhrzeit(), version=version, msg=msg)
 
 
 @route('/app/export.html', method=['GET', 'POST'])
 def export():
-    uhrzeit = time.strftime("%H:%M:%S")
-    datum = time.strftime("%d.%m.%Y")
     export = bottle.request.params.get("export", default="false")
-
 
     # Array neu erzeugen (leer)
     id_anwesenheit = []
@@ -123,8 +194,6 @@ def export():
     time_kommen = []
     time_gehen = []
 
-
-    random_id = randomword(5)
     # Datenbank verbinden
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -143,21 +212,13 @@ def export():
     dis_time_kommen = ("\n".join(time_kommen))
     dis_time_gehen = ("\n".join(time_gehen))
 
-
     if export == "true":
-        csvWriter = csv.writer(open("app/src/export/" + datum + "_" + "export.csv", "w"))
-        conn = sqlite3.connect(db)
-        c = conn.cursor()
-        c.execute("SELECT * FROM anwesenheit")
-        rows = c.fetchall()
-        for row in rows:
-            csvWriter.writerows([row])
+        export_csv()
     else:
         pass
     c.close()
 
-
-    return template("./app/export.html", uhrzeit=uhrzeit, datum=datum, version=version,
+    return template("./app/export.html", uhrzeit=uhrzeit(), datum=datum(), version=version,
                     dis_id_anwesenheit=dis_id_anwesenheit,
                     dis_id_mitarbeiter=dis_id_mitarbeiter, dis_time_datum=dis_time_datum,
                     dis_time_kommen=dis_time_kommen,
@@ -168,6 +229,7 @@ def export():
 def static(filename):
     return static_file(filename, root='./app/src')
 
+
 @bottle.get('/api')
 def api():
     mitarbeiter_id = request.query.id
@@ -175,7 +237,7 @@ def api():
     datum = time.strftime("%d.%m.%Y")
 
     if len(mitarbeiter_id) < 5 or len(mitarbeiter_id) > 5:
-        return  "Check ID length"
+        return "Check ID length"
     else:
         conn = sqlite3.connect(db)
         c = conn.cursor()
@@ -183,13 +245,13 @@ def api():
         status = c.fetchone()
         status = status[0]
 
-        if str(status) == "1": #Wenn da, dann austragen
+        if str(status) == "1":  # Wenn da, dann austragen
             c.execute("UPDATE mitarbeiter SET status=0 WHERE id_mitarbeiter=?", (mitarbeiter_id,))
             c.execute("UPDATE anwesenheit SET time_out=? WHERE id_mitarbeiter=? AND datum=?",
                       (uhrzeit, mitarbeiter_id, datum,))
             conn.commit()
             return "Erfolgreich ausgetragen! Zeitstempel -->{0} {1}".format(datum, uhrzeit)
-        elif str(status) == "0": #Wenn nicht da, eintragen
+        elif str(status) == "0":  # Wenn nicht da, eintragen
             c.execute("UPDATE mitarbeiter SET status=1 WHERE id_mitarbeiter=?", (mitarbeiter_id,))
             c.execute("INSERT INTO anwesenheit VALUES (NULL, ?, ?, ?, 'Noch anwesend...', 0)",
                       (mitarbeiter_id, datum, uhrzeit,))
@@ -197,8 +259,7 @@ def api():
             return "Erfolgreich eingetragen! Zeitstempel -->{0} {1}".format(datum, uhrzeit)
         else:
             return "Got incorrect values"
-        c.close()
-
+    c.close()
 
     return "ID: {0} Status: {1}".format(abfrage[0], abfrage[1])
 
